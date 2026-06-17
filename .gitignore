@@ -1,0 +1,7 @@
+# venv local (se recrea con setup.sh)
+.venv/
+# templates de demo (datos de runtime, no van al repo)
+store.json
+# python
+__pycache__/
+*.pyc

@@ -11,11 +11,24 @@ No usa dependencias extra (urllib stdlib). cliente_id/tenant_id son de demo.
 """
 import json
 import sys
+import time
 import urllib.request
 
 URL = "http://127.0.0.1:8000"
 CLIENTE = "DEMO-CLIENTE-1"
 TENANT = "DEMO-TENANT"
+
+
+def wait_for_agent(timeout=20):
+    """Espera a que el agente ligue el puerto (evita la carrera con `agent.py &`)."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(URL + "/health", timeout=3) as r:
+                return json.loads(r.read() or "{}")
+        except Exception:  # noqa: BLE001
+            time.sleep(0.5)
+    return None
 
 
 def call(path, body=None, timeout=30):
@@ -35,7 +48,11 @@ def call(path, body=None, timeout=30):
 
 
 def main():
-    st, health = call("/health")
+    health = wait_for_agent()
+    if health is None:
+        print(f"[FALLO] el agente no respondió en {URL} (20s).")
+        print("        ¿Corriste `agent.py`? Revisá /tmp/agent.log.")
+        return 1
     print(f"/health → {health}")
     if health.get("reader") != "connected":
         print("[FALLO] el agente no ve el lector (reader != connected).")

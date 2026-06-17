@@ -60,7 +60,9 @@ frontend (`/health`, `/api/fingerprint/{capture,enroll,identify}`). Con esto, en
 navegador de la laptop abrís el SaaS desplegado (`www.fitgym-app.com`, ya tiene
 `VITE_HUELLA_ENABLED=true` + CSP `connect-src http://localhost:8000`) y hacés el demo
 REAL: enrolar desde la ficha del cliente → kiosko identifica → marca asistencia.
-No hace pairing/durable (es para demo; templates en `store.json` local).
+Por defecto local (`store.json`, `durable:false`). Para que el enroll PERSISTA + el front
+muestre "Registrada" al recargar: tocá **"Vincular lector"** en la UI (Configuración) → el
+agente se vincula (`/api/pair`) y espeja a Supabase (`huella_enroll`). Ver `huella_rpc.py`.
 
 ---
 

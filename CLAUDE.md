@@ -14,6 +14,7 @@ identificar → marcar asistencia) usando la UI desplegada en el navegador.
   - `POST /api/fingerprint/capture` `{timeout}` → `{template(base64), quality}`
   - `POST /api/fingerprint/enroll` `{cliente_id,tenant_id,template1,template2,template3}` → `{ok,uid}`
   - `POST /api/fingerprint/identify` `{tenant_id}` → 200 `{ok,cliente_id,score}` / 404 / 408
+  - `POST /api/pair` `{token,supabase_url,anon_key}` → `{ok,tenant_id,gym,templates}` (DURABLE opcional)
 - La UI desplegada `www.fitgym-app.com` ya tiene `VITE_HUELLA_ENABLED=true` + CSP
   `connect-src http://localhost:8000`. `http://localhost` desde `https` funciona (Secure
   Context). Con el agente corriendo, la UI muestra "Lector conectado" y deja enrolar/identificar.
@@ -65,6 +66,16 @@ bash detect_reader.sh                                     # plug reader → udev
 - `setup.sh` / `install_sdk.sh` / `detect_reader.sh` — instalación/verificación/permisos.
 - `README.md` — la versión human-readable de todo esto.
 
+## Durable / pairing (opcional, igual que el .NET de prod)
+Por defecto el agente es local (templates en `store.json`, `durable:false`) → suficiente para
+demo en vivo (enrolar→identificar misma sesión), pero el front NO refleja "Registrada" al
+recargar (la columna `clientes.huella_registered` solo la setea la RPC `huella_enroll`).
+Para que PERSISTA + refleje en la UI: vincular el lector. El front tiene botón **"Vincular
+lector"** (LectorHuellaCard) → POST `/api/pair` con `kiosk_token` + url/anon-key → el agente
+valida (`kiosk_init`), guarda `pairing.json` (gitignored, tiene el token = secreto), baja los
+templates del tenant (`huella_templates`) y de ahí en más el enroll espeja a Supabase
+(`huella_enroll`, que setea `huella_registered=true`). Ver `huella_rpc.py`. NUNCA service-role:
+solo anon key pública + kiosk_token, igual que el kiosko.
+
 ## Entorno validado
-Pop!_OS 24.04 (Ubuntu base), x86_64, Python 3.12. Para demo NO hace falta durable/pairing
-(eso es del agente .NET de producción). Acá los templates viven en `store.json` local.
+Pop!_OS 24.04 (Ubuntu base), x86_64, Python 3.12.

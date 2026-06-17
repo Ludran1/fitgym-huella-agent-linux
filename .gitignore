@@ -2,6 +2,8 @@
 .venv/
 # templates de demo (datos de runtime, no van al repo)
 store.json
+# credenciales del pairing (kiosk_token del gym = secreto) — NUNCA al repo
+pairing.json
 # python
 __pycache__/
 *.pyc

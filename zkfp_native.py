@@ -122,6 +122,10 @@ class ZKFP:
     def db_clear(self):
         self.lib.ZKFPM_DBClear(self.db)
 
+    def db_del(self, fid):
+        """Borra un fid de la DB en memoria (para re-enroll/actualizar). Ignora rc."""
+        self.lib.ZKFPM_DBDel(self.db, fid)
+
     def identify(self, tmpl):
         """1:N contra la DB en memoria. Devuelve (fid, score) o None si no matchea."""
         fid, score = C.c_uint(0), C.c_uint(0)
